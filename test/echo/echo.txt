@@ -1,0 +1,17 @@
+Debug
+Backtrace
+-----
+Import ./debug
+
+
+Echo
+Write
+Print
+-------------
+Import ./echo
+Backtrace
+
+
+Echo Hello Word!
+Write Hello Word!
+Print Hello Word!

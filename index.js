@@ -16,7 +16,7 @@ function TextScript(_file) {
     const absolutePath = path.resolve(path.dirname(input.file), `${name}.js`)
 
     // eslint-disable-next-line import/no-dynamic-require, global-require
-    require(absolutePath)()
+    require(absolutePath)(input)
   }
 
   this.readFile = (file, pwd = '') => {
@@ -31,7 +31,7 @@ function TextScript(_file) {
   this.addCommand = (headers, commands, file) => {
     const headerArray = headers.constructor === Array ? headers : [headers]
     headerArray.forEach((name) => {
-      this.commands[name.toLowerCase()] = () => this.processBlock(commands, file)
+      this.commands[name.toLowerCase()] = input => this.processBlock(commands, file, input)
     })
   }
 
@@ -39,7 +39,7 @@ function TextScript(_file) {
    * @argument {string} name
    * @argument {string} file
    */
-  this.runCommand = (name, file) => {
+  this.runCommand = (name, file, input) => {
     const searchName = `${name.toLowerCase()} `
     const possibleCommands = Object.keys(this.commands)
       .filter(c => searchName.startsWith(`${c} `)) // commands starts with same words
@@ -53,19 +53,21 @@ function TextScript(_file) {
     this.commands[command]({
       file,
       command: name,
+      parametr: name.substr(command.length).trim(),
+      previous: input,
     })
   }
 
   /**
    * Process lines, create function or run commands on lines
    */
-  this.processBlock = (lines, file) => {
+  this.processBlock = (lines, file, input) => {
     const separatorLine = lines.findIndex(i => /^---/.test(i))
     if (separatorLine > 0) {
       const headers = lines.slice(0, separatorLine)
-      this.addCommand(headers, lines.slice(separatorLine + 1), file)
+      this.addCommand(headers, lines.slice(separatorLine + 1), file, input)
     } else {
-      lines.forEach(command => this.runCommand(command, file))
+      lines.forEach(command => this.runCommand(command, file, input))
     }
   }
 
