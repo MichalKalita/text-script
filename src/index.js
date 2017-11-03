@@ -1,8 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 
-const args = process.argv.splice(2)
-
 function TextScript(_file) {
   this.file = _file
   this.commands = {}
@@ -86,7 +84,5 @@ function TextScript(_file) {
 
   this.parseFile(this.file)
 }
-
-TextScript(args[0])
 
 module.exports = TextScript
