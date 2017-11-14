@@ -7,7 +7,7 @@ class TextScript {
   }
 
   /**
-   *
+   * Add command to list
    * @param {string[]} headers
    * @param {function} commands
    */
@@ -19,6 +19,7 @@ class TextScript {
   }
 
   /**
+   * Run command from list, command must be added firstly
    * @argument {string} name
    * @argument {object} input
    */
@@ -43,17 +44,15 @@ class TextScript {
 
   /**
    * Process lines, create function or run commands on lines
+   * @argument {string[]} lines
+   * @argument {object} input
    */
   processBlock(lines, input) {
     const separatorLine = lines.findIndex(i => /^---/.test(i))
     if (separatorLine > 0) {
       const headers = lines.slice(0, separatorLine)
-      // this.addCommand(headers, lines.slice(separatorLine + 1), file)
       this.addCommand(
         headers,
-        // (i) => {
-        //   lines.slice(separatorLine + 1).forEach(line => this.runCommand(line, file, i))
-        // }
         () => this.processBlock(lines.slice(separatorLine + 1), input),
       )
     } else {
