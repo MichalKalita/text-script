@@ -2,8 +2,7 @@
  * Core module for text scripting
  */
 class TextScript {
-  constructor(_file) {
-    this.file = _file
+  constructor() {
     this.commands = {}
   }
 

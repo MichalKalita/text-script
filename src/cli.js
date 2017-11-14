@@ -46,7 +46,7 @@ program.command('* <file>')
   .description('Run text scripts')
   .action((file) => {
     console.log(`Running file ${file}`)
-    const s = new TextScript(file)
+    const s = new TextScript()
     const importFileBinded = importFile.bind(s)
 
     s.addCommand('import', importFileBinded)
