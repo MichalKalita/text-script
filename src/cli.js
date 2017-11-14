@@ -15,6 +15,30 @@ function readFile(file, pwd = '') {
   }
 }
 
+function importFile(input) {
+  // Command for include script
+  if (input.parametr.endsWith('.txt')) {
+    const content = readFile(input.parametr, input.file)
+
+    const nextLevelInput = input
+    nextLevelInput.file = input.parametr
+
+    // block processing
+    content.split('\n\n')
+      .map(i => i.trim())
+      .forEach((block) => {
+        const lines = block.split('\n').map(i => i.trim())
+
+        this.processBlock(lines, nextLevelInput)
+      })
+  } else {
+    const absolutePath = path.resolve(path.dirname(input.file), input.parametr)
+
+    // eslint-disable-next-line import/no-dynamic-require, global-require
+    require(absolutePath)(input)
+  }
+}
+
 program
   .version('0.1.0')
 
@@ -23,36 +47,11 @@ program.command('* <file>')
   .action((file) => {
     console.log(`Running file ${file}`)
     const s = new TextScript(file)
+    const importFileBinded = importFile.bind(s)
 
+    s.addCommand('import', importFileBinded)
 
-    s.addCommand('import', (input) => {
-      // Command for include script
-      try {
-        const content = readFile(input.parametr)
-
-        // block processing
-        content.split('\n\n')
-          .map(i => i.trim())
-          .forEach((block) => {
-            const lines = block.split('\n').map(i => i.trim())
-
-            s.processBlock(lines, { file })
-          })
-      } catch (e) {
-        const moduleName = input.command.replace(/^import/i, '').trim()
-
-        let name = /^'?(.*)(\.txt)?'?$/.exec(moduleName)
-        name = name === null ? moduleName : name[1]
-
-        const absolutePath = path.resolve(path.dirname(input.file), name)
-
-        // eslint-disable-next-line import/no-dynamic-require, global-require
-        require(absolutePath)(input)
-      }
-    })
-
-
-    s.runCommand(`import ${file}`, file)
+    s.runCommand(`import ${file}`, { file: '' })
   })
 
 program.parse(process.argv)
