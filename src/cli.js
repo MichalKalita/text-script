@@ -36,7 +36,7 @@ program.command('* <file>')
           .forEach((block) => {
             const lines = block.split('\n').map(i => i.trim())
 
-            s.processBlock(lines, file)
+            s.processBlock(lines, { file })
           })
       } catch (e) {
         const moduleName = input.command.replace(/^import/i, '').trim()

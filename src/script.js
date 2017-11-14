@@ -11,9 +11,8 @@ class TextScript {
    *
    * @param {string[]} headers
    * @param {function} commands
-   * @param {string} file
    */
-  addCommand(headers, commands, file) {
+  addCommand(headers, commands) {
     const headerArray = headers.constructor === Array ? headers : [headers]
     headerArray.forEach((name) => {
       this.commands[name.toLowerCase()] = input => commands(input)
@@ -22,9 +21,9 @@ class TextScript {
 
   /**
    * @argument {string} name
-   * @argument {string} file
+   * @argument {object} input
    */
-  runCommand(name, file, input) {
+  runCommand(name, input) {
     const searchName = `${name.toLowerCase()} `
     const possibleCommands = Object.keys(this.commands)
       .filter(c => searchName.startsWith(`${c} `)) // commands starts with same words
@@ -36,7 +35,7 @@ class TextScript {
       possibleCommands.reduce((a, b) => ((a.length > b.length) ? a : b))
 
     this.commands[command]({
-      file,
+      file: input.file,
       command: name,
       parametr: name.substr(command.length).trim(),
       previous: input,
@@ -46,7 +45,7 @@ class TextScript {
   /**
    * Process lines, create function or run commands on lines
    */
-  processBlock(lines, file, input) {
+  processBlock(lines, input) {
     const separatorLine = lines.findIndex(i => /^---/.test(i))
     if (separatorLine > 0) {
       const headers = lines.slice(0, separatorLine)
@@ -56,11 +55,10 @@ class TextScript {
         // (i) => {
         //   lines.slice(separatorLine + 1).forEach(line => this.runCommand(line, file, i))
         // }
-        () => this.processBlock(lines.slice(separatorLine + 1), file, input)
-        , file,
+        () => this.processBlock(lines.slice(separatorLine + 1), input),
       )
     } else {
-      lines.forEach(command => this.runCommand(command, file, input))
+      lines.forEach(command => this.runCommand(command, input))
     }
   }
 }
